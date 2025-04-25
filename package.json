@@ -1,0 +1,13 @@
+{
+	"name": "com.game5mobile.tmpoutlinemodifier",
+	"version": "1.0.0",
+	"displayName": "TextMeshPro Outline Modifier",
+	"description": "Component for modifying TextMeshPro outline",
+	"unity": "2021.3",
+	"unityRelease": "4f1",
+	"author": {
+		"name": "Game5mobile",
+		"email": "info@game5mobile.com",
+		"url": "https://www.game5mobile.com"
+	}
+}
