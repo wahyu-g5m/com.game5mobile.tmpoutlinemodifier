@@ -2,98 +2,101 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-[RequireComponent(typeof(TextMeshProUGUI))]
-public class TMPOutlineModifier : MonoBehaviour
+namespace Five.Utils
 {
-    private List<Material> garbageMaterials = new();
-    private TextMeshProUGUI textTarget;
-
-    [SerializeField] private bool setOutlineColorOnAwake = true;
-    [SerializeField] private bool changeFaceDilate = false;
-    [SerializeField] private bool changeOutlineThickness = false;
-    [SerializeField] private bool changeUnderlayColor = false;
-    [SerializeField, ColorUsage(true, true)] private Color32 outlineColor;
-    [SerializeField, ColorUsage(true, true)] private Color32 underlayColor;
-    [SerializeField, Range(-1, 1)] private float faceDilate;
-    [SerializeField, Range(0, 1)] private float thickness;
-
-    private void Awake()
+    [RequireComponent(typeof(TextMeshProUGUI))]
+    public class TMPOutlineModifier : MonoBehaviour
     {
-        if (setOutlineColorOnAwake)
+        private List<Material> garbageMaterials = new();
+        private TextMeshProUGUI textTarget;
+
+        [SerializeField] private bool setOutlineColorOnAwake = true;
+        [SerializeField] private bool changeFaceDilate = false;
+        [SerializeField] private bool changeOutlineThickness = false;
+        [SerializeField] private bool changeUnderlayColor = false;
+        [SerializeField, ColorUsage(true, true)] private Color32 outlineColor;
+        [SerializeField, ColorUsage(true, true)] private Color32 underlayColor;
+        [SerializeField, Range(-1, 1)] private float faceDilate;
+        [SerializeField, Range(0, 1)] private float thickness;
+
+        private void Awake()
         {
-            SetOutlineColor(outlineColor);
+            if (setOutlineColorOnAwake)
+            {
+                SetOutlineColor(outlineColor);
+            }
+            if (changeOutlineThickness)
+            {
+                SetOutlineWidth(0);
+            }
+            if (changeFaceDilate)
+            {
+                SetFaceDilate(0);
+            }
+            if (changeUnderlayColor)
+            {
+                SetUnderlayColor(underlayColor);
+            }
         }
-        if (changeOutlineThickness)
+
+        private void Start()
         {
-            SetOutlineWidth(0);
+            if (changeOutlineThickness)
+            {
+                SetOutlineWidth(thickness);
+            }
+            if (changeFaceDilate)
+            {
+                SetFaceDilate(faceDilate);
+            }
         }
-        if (changeFaceDilate)
+
+        private void OnDestroy()
         {
-            SetFaceDilate(0);
+            while (garbageMaterials.Count > 0)
+            {
+                Destroy(garbageMaterials[0]);
+                garbageMaterials.RemoveAt(0);
+            }
         }
-        if (changeUnderlayColor)
+
+        public void SetOutlineColor(Color32 newColor)
         {
-            SetUnderlayColor(underlayColor);
+            GetTextTarget();
+            textTarget.fontMaterial.SetColor("_OutlineColor", newColor);
+            textTarget.ForceMeshUpdate();
         }
-    }
 
-    private void Start()
-    {
-        if (changeOutlineThickness)
+        public void SetUnderlayColor(Color32 newColor)
         {
-            SetOutlineWidth(thickness);
+            GetTextTarget();
+            textTarget.fontMaterial.SetColor("_UnderlayColor", newColor);
+            textTarget.ForceMeshUpdate();
         }
-        if (changeFaceDilate)
+
+        public void SetOutlineWidth(float thickness)
         {
-            SetFaceDilate(faceDilate);
+            GetTextTarget();
+            thickness = Mathf.Min(thickness, 1);
+            textTarget.fontMaterial.SetFloat("_OutlineWidth", thickness);
+            textTarget.ForceMeshUpdate();
         }
-    }
 
-    private void OnDestroy()
-    {
-        while (garbageMaterials.Count > 0)
+        public void SetFaceDilate(float dilate)
         {
-            Destroy(garbageMaterials[0]);
-            garbageMaterials.RemoveAt(0);
+            GetTextTarget();
+            dilate = Mathf.Min(dilate, 1);
+            textTarget.fontMaterial.SetFloat("_FaceDilate", dilate);
+            textTarget.ForceMeshUpdate();
         }
-    }
 
-    public void SetOutlineColor(Color32 newColor)
-    {
-        GetTextTarget();
-        textTarget.fontMaterial.SetColor("_OutlineColor", newColor);
-        textTarget.ForceMeshUpdate();
-    }
-
-    public void SetUnderlayColor(Color32 newColor)
-    {
-        GetTextTarget();
-        textTarget.fontMaterial.SetColor("_UnderlayColor", newColor);
-        textTarget.ForceMeshUpdate();
-    }
-
-    public void SetOutlineWidth(float thickness)
-    {
-        GetTextTarget();
-        thickness = Mathf.Min(thickness, 1);
-        textTarget.fontMaterial.SetFloat("_OutlineWidth", thickness);
-        textTarget.ForceMeshUpdate();
-    }
-
-    public void SetFaceDilate(float dilate)
-    {
-        GetTextTarget();
-        dilate = Mathf.Min(dilate, 1);
-        textTarget.fontMaterial.SetFloat("_FaceDilate", dilate);
-        textTarget.ForceMeshUpdate();
-    }
-
-    private void GetTextTarget()
-    {
-        if (textTarget == null)
+        private void GetTextTarget()
         {
-            textTarget = GetComponent<TextMeshProUGUI>();
-            garbageMaterials.Add(textTarget.fontMaterial);
+            if (textTarget == null)
+            {
+                textTarget = GetComponent<TextMeshProUGUI>();
+                garbageMaterials.Add(textTarget.fontMaterial);
+            }
         }
     }
 }
